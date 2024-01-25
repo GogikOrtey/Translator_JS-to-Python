@@ -21,16 +21,15 @@ fs.readFile('Транслятор 1/Input.txt', 'utf8', function(err, data) {
         process.exit(1); // Завершаем программу, если ошибка
     } else {
         //console.log(data);
-        inputMass = data.split('\n');       
-        
-        
+        inputMass = data.split('\n');             
 
         inputMass = LexerClearing(inputMass);
-
-        print(inputMass);
+        //print(inputMass);
         inputMass = OverspasingLexems(inputMass);
 
-        print(inputMass);
+        MainLexer(inputMass);
+
+        //print(inputMass);
     }
 });
 
@@ -61,6 +60,7 @@ function LexerClearing(inputMass) {
     return inputMass;
 }
 
+// Ключевые слова (лексемы), между которыми мы ставим пробелы
 let mass_SpaseLexems = {
     "=" : "EQUAL",
     ";" : "SEMICOLON",
@@ -87,4 +87,48 @@ function OverspasingLexems(inputMass) {
         outputMass.push(line);
     }
     return outputMass;
+}
+
+// Все остальные ключевые слова
+let keywords = {
+    "var" : "VARIABLE_DECLARATION",
+    "function" : "FUNCTION_DECLARATION",
+    "return" : "RETURN_STATEMENT",
+    "if" : "IF_STATEMENT",
+    "else" : "ELSE_STATEMENT",
+    "for" : "FOR_LOOP",
+    "of" : "OF_KEYWORD",
+    "console.log" : "CONSOLE_LOG"
+};
+
+// Выводит в консоль все встреченные лексемы, по порядку
+function MainLexer(inputMass) {
+    for (let i = 0; i < inputMass.length; i++) {
+        let line = inputMass[i];
+        let lexemes = line.split(/\s+/);
+        let inString = false;
+        let stringLexeme = "";
+        for (let j = 0; j < lexemes.length; j++) {
+            let lexeme = lexemes[j];
+            if (lexeme.startsWith("\"")) {
+                inString = true;
+                stringLexeme += lexeme + " ";
+            } else if (lexeme.endsWith("\"")) {
+                inString = false;
+                stringLexeme += lexeme;
+                console.log(stringLexeme + " - STRING");
+                stringLexeme = "";
+            } else if (inString) {
+                stringLexeme += lexeme + " ";
+            } else if (mass_SpaseLexems.hasOwnProperty(lexeme)) {
+                console.log(lexeme + " - " + mass_SpaseLexems[lexeme]);
+            } else if (keywords.hasOwnProperty(lexeme)) {
+                console.log(lexeme + " - " + keywords[lexeme]);
+            } else if (!isNaN(lexeme)) {
+                console.log(lexeme + " - NUM_INT");
+            } else {
+                console.log(lexeme + " - ID");
+            }
+        }
+    }
 }
