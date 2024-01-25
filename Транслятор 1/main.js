@@ -71,7 +71,9 @@ let mass_SpaseLexems = {
     "}" : "CLOSE_BRACE",
     "<" : "LESS_THAN",
     "[" : "OPEN_BRACKET",
-    "]" : "CLOSE_BRACKET"
+    "]" : "CLOSE_BRACKET",
+    ">" : "GREATER_THAN",
+    "+" : "ADDITION_OPERATOR"  
 };
 
 // Расставляет пробелы между нужными лексемами
@@ -98,7 +100,7 @@ let keywords = {
     "else" : "ELSE_STATEMENT",
     "for" : "FOR_LOOP",
     "of" : "OF_KEYWORD",
-    "console.log" : "CONSOLE_LOG"
+    "console.log" : "CONSOLE_LOG"      
 };
 
 // Выводит в консоль все встреченные лексемы, по порядку
