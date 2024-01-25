@@ -107,21 +107,11 @@ let keywords = {
 function MainLexer(inputMass) {
     for (let i = 0; i < inputMass.length; i++) {
         let line = inputMass[i];
-        let lexemes = line.split(/\s+/);
-        let inString = false;
-        let stringLexeme = "";
+        let lexemes = line.match(/"[^"]*"|\S+/g); // Используем регулярное выражение, чтобы сохранить строки как одну лексему
         for (let j = 0; j < lexemes.length; j++) {
             let lexeme = lexemes[j];
-            if (lexeme.startsWith("\"")) {
-                inString = true;
-                stringLexeme += lexeme + " ";
-            } else if (lexeme.endsWith("\"")) {
-                inString = false;
-                stringLexeme += lexeme;
-                console.log(stringLexeme + " - STRING");
-                stringLexeme = "";
-            } else if (inString) {
-                stringLexeme += lexeme + " ";
+            if (lexeme.startsWith("\"") && lexeme.endsWith("\"")) {
+                console.log(lexeme + " - STRING");
             } else if (mass_SpaseLexems.hasOwnProperty(lexeme)) {
                 console.log(lexeme + " - " + mass_SpaseLexems[lexeme]);
             } else if (keywords.hasOwnProperty(lexeme)) {
