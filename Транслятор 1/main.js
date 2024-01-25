@@ -21,16 +21,21 @@ fs.readFile('Транслятор 1/Input.txt', 'utf8', function(err, data) {
         process.exit(1); // Завершаем программу, если ошибка
     } else {
         //console.log(data);
-        inputMass = data.split('\n');        
+        inputMass = data.split('\n');       
+        
+        
 
-        LexerClearing(inputMass);
+        inputMass = LexerClearing(inputMass);
+
+        print(inputMass);
+        inputMass = OverspasingLexems(inputMass);
+
+        print(inputMass);
     }
 });
 
 // Очищает входной файл от пробелов, табов, и других спецсимволов
-function LexerClearing(inputMass) {
-    print(inputMass)
-
+function LexerClearing(inputMass) {  
     // Удаляем пустые строки
     inputMass = inputMass.filter(line => line.trim() !== '');
 
@@ -51,7 +56,35 @@ function LexerClearing(inputMass) {
         return line;
     });
 
-    print(inputMass)
+    
 
     return inputMass;
+}
+
+let mass_SpaseLexems = {
+    "=" : "EQUAL",
+    ";" : "SEMICOLON",
+    "(" : "OPEN_PARENTHESIS",
+    ")" : "CLOSE_PARENTHESIS",
+    "," : "COMMA",
+    "{" : "OPEN_BRACE",
+    "}" : "CLOSE_BRACE",
+    "<" : "LESS_THAN",
+    "[" : "OPEN_BRACKET",
+    "]" : "CLOSE_BRACKET"
+};
+
+// Расставляет пробелы между нужными лексемами
+function OverspasingLexems(inputMass) {
+    let outputMass = [];
+    for (let i = 0; i < inputMass.length; i++) {
+        let line = inputMass[i];
+        for (let lexeme in mass_SpaseLexems) {
+            let regex = new RegExp("\\" + lexeme, "g");
+            line = line.replace(regex, " " + lexeme + " ");
+        }
+        line = line.replace(/\s+/g, ' ').trim(); // Удаляем лишние пробелы
+        outputMass.push(line);
+    }
+    return outputMass;
 }
