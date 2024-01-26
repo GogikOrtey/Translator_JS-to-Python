@@ -21,6 +21,10 @@ fs.readFile('Транслятор 1/Input.txt', 'utf8', function(err, data) {
         console.error("Не удалось открыть файл: ", err);
         process.exit(1); // Завершаем программу, если ошибка
     } else {
+        print("Входной файл:\n");
+        print(data);
+        print("----------------");
+
         // Подготовка к разбору лексем:
         inputMass = data.split('\n');             
 
@@ -32,6 +36,9 @@ fs.readFile('Транслятор 1/Input.txt', 'utf8', function(err, data) {
 
         // Разбор лексем:
         MainLexer(inputMass);
+
+        // Вывод лексем в консоль:
+        PrintAllLexerLexems();
     }
 });
 
@@ -133,6 +140,13 @@ let keywords = {
     "console.log" : "CONSOLE_LOG"      
 };
 
+
+let lexMassMain = [];   // Хранит все лексемы           Например: for
+let lexMassAdd = [];    // Хранит все описания лексем   Например: FOR_LOOP
+// Эти массивы будут публичными.
+
+let isPrintToConsole = false; // Печатаем в консоль из MainLexer?
+
 // Выводит в консоль все встреченные лексемы, по порядку
 function MainLexer(inputMass) {
     for (let i = 0; i < inputMass.length; i++) {
@@ -140,29 +154,50 @@ function MainLexer(inputMass) {
         let lexemes = line.match(/"[^"]*"|\S+/g); // Используем регулярное выражение, чтобы сохранить строки как одну лексему
         for (let j = 0; j < lexemes.length; j++) {
             let lexeme = lexemes[j];
+
             if (lexeme.startsWith("\"") && lexeme.endsWith("\"")) {
-                console.log(lexeme + " - STRING");
-            } else if (mass_SpaseLexems.hasOwnProperty(lexeme)) {
-                console.log(lexeme + " - " + mass_SpaseLexems[lexeme]);
-            } else if (keywords.hasOwnProperty(lexeme)) {
-                console.log(lexeme + " - " + keywords[lexeme]);
-            } else if (!isNaN(lexeme)) {
-                console.log(lexeme + " - NUM_INT");
-            } else {
-                console.log(lexeme + " - ID");
+                if(isPrintToConsole) console.log(lexeme + " - STRING");
+                lexMassMain.push(lexeme);
+                lexMassAdd.push("STRING");
+            } 
+            else if (mass_SpaseLexems.hasOwnProperty(lexeme)) {
+                if(isPrintToConsole) console.log(lexeme + " - " + mass_SpaseLexems[lexeme]);
+                lexMassMain.push(lexeme);
+                lexMassAdd.push(mass_SpaseLexems[lexeme]);
+            } 
+            else if (keywords.hasOwnProperty(lexeme)) {
+                if(isPrintToConsole) console.log(lexeme + " - " + keywords[lexeme]);
+                lexMassMain.push(lexeme);
+                lexMassAdd.push(keywords[lexeme]);
+            } 
+            else if (!isNaN(lexeme)) {
+                if(isPrintToConsole) console.log(lexeme + " - NUM_INT");
+                lexMassMain.push(lexeme);
+                lexMassAdd.push("NUM_INT");
+            } 
+            else {
+                if(isPrintToConsole) console.log(lexeme + " - ID");
+                lexMassMain.push(lexeme);
+                lexMassAdd.push("ID");
             }
         }
     }
 }
 
+function PrintAllLexerLexems() {
+    print("\nВсе разобранные лексемы:\n");
+    for (let i = 0; i < lexMassMain.length; i++) {
+        print(lexMassMain[i] + "				-   " + lexMassAdd[i]);
+    }
+    print("\n----------------\n");
+}
 
-// Лексер готов ~
+/// ---------- PARSER ---------- ///
 
-// Нужно добавить все арифметические операции, и большую часть ключевых слов языка JS
-// Добавить:
-/*
-    Удаление комментариев (однострочных)
-*/
+
+
+
+// Нужно добавить в лексер все арифметические операции, и большую часть ключевых слов языка JS
 
 // Дальше пишем парсер. Под основные конструкции кода (любезно представленные в примере):
 /*
@@ -181,12 +216,9 @@ function MainLexer(inputMass) {
 
 // Добавить в семантическом анализаторе:
 /*
-    Если встречен недопустимый символ - разбор прекращается (в Лексере)
-
     Единая область объявления имён переменных и функций
         Если переменная или функция не используется в коде - в код она не выводится (проверка уже в кодогенераторе)
 
     При любой ошибке - кидать строку или лексему, в которой она произошла
 */
 
-/// ---------- PARSER ---------- ///
