@@ -242,6 +242,20 @@ function PrintAllLexerLexems() {
 
 // Массив используемых переменных - ?
 
+// Для печати с нужным количеством табов
+let lvl = 0;
+
+function printLvl(str) {
+    str1 = "";
+    if(lvl < 0) lvl = 0;
+
+    for (let i = 0; i < lvl; i++) {
+        str1 += "	";
+    }
+
+    print(str1 + str);
+}
+
 
 function MainParser() {
     // Используем массивы lexMassMain и lexMassAdd - в них харнятся все распознанные лексемы
@@ -249,15 +263,49 @@ function MainParser() {
     // например FOR или IF - переходим в другую функцию, и обрабатываем этот блок.
     // Но затем - снова возвращаем управление, в эту основную функцию
 
+    print("Дерево разбора парсера:\n");
+
+    lvl = 0;
+
     for (let i = 0; i < lexMassMain.length; i++) {
 
         // Нет проверки на выход за границы массива
         // Но JS и не будет кидать ошибку, в таком случае, так что всё работает как нужно
 
+        if(lexMassAdd[i] == "SEMICOLON") {
+            continue;
+        }
+
         if(lexMassAdd[i] == "VARIABLE_DECLARATION") {
 
-            //if()
+            i++;
+
+            if(lexMassAdd[i] == "ID") {
+                printLvl("INIT_VAR:");
+                lvl++;
+                printLvl("NAME : " + lexMassMain[i]);
+                i++;
+
+                if(lexMassAdd[i] == "EQUAL") {
+                    i++;
+
+                    if(lexMassAdd[i] == "NUM_INT") {
+                        printLvl("VALUE : " + lexMassMain[i]);
+                        lvl--;
+
+                        continue;
+                    }
+                }
+            }
         }        
+
+        if(lexMassAdd[i] == "") {
+            
+        }
+
+        if(lexMassAdd[i] == "") {
+            
+        }
     }  
 }
 
