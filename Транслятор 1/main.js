@@ -295,6 +295,20 @@ function MainParser() {
                         lvl--;
 
                         continue;
+                    } else if(lexMassAdd[i] == "OPEN_BRACKET") {
+                        printLvl("MASS_VALUES:");
+                        lvl++;
+                        i++;
+        
+                        while(lexMassAdd[i] != "CLOSE_BRACKET") {
+                            if(lexMassAdd[i] == "STRING") {
+                                printLvl("VALUE : " + lexMassMain[i]);
+                            }
+                            i++;
+                        }
+        
+                        lvl--;
+                        lvl--;
                     }
                 }
             }
@@ -469,7 +483,31 @@ function MainParser() {
             }
         }
         
+        if(lexMassAdd[i] == "ID") {
+            if(allFuncInit.includes(lexMassMain[i])) {
+                printLvl("CALL_FUNC:");
+                lvl++;
+                printLvl("NAME : " + lexMassMain[i]);
+                i++;
         
+                if(lexMassAdd[i] == "OPEN_PARENTHESIS") {
+                    printLvl("ARGS:");
+                    lvl++;
+                    i++;
+        
+                    while(lexMassAdd[i] != "CLOSE_PARENTHESIS") {
+                        if(lexMassAdd[i] == "STRING") {
+                            printLvl("ARG : " + lexMassMain[i]);
+                        }
+                        i++;
+                    }
+        
+                    lvl--;
+                    lvl--;
+                    continue;
+                }
+            }
+        }        
 
         if(lexMassAdd[i] == "") {
             
