@@ -451,6 +451,14 @@ function MainParser() {
                                     }
                                 }
                             }
+                        } else if(lexMassAdd[i] == "OF_KEYWORD") {
+                            printLvl("OF");
+                            i++;
+
+                            if(lexMassAdd[i] == "ID") {
+                                printLvl("VAR_COUNTS : " + lexMassMain[i]);
+                                i++;
+                            }
                         }
                     }
                 }
