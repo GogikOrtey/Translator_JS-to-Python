@@ -6,7 +6,7 @@ function addNumbers(x, y) {
 }
 
 // Комментарий
-Запрещённые символы: ♥♦♠♣
+// Запрещённые символы: ♥♦♠♣
 
 if (x > y) {
     console.log("x is greater than y");

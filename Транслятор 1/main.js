@@ -80,8 +80,9 @@ function LexerErrorSymbolCorrector(inputMass) {
     for (let i = 0; i < inputMass.length; i++) {
         for (let j = 0; j < inputMass[i].length; j++) {
             let ascii = inputMass[i].charCodeAt(j);
-            if (!((ascii >= 32 && ascii <= 126) || (ascii >= 1040 && ascii <= 1103))) {
-                print("Встречен недопустимый символ! Разбор программы был остановлен: " + inputMass[i][j]);
+            if (!((ascii >= 32 && ascii <= 126) || (ascii >= 1040 && ascii <= 1105))) {
+                print("Встречен недопустимый символ! Разбор программы был остановлен: " 
+                    + inputMass[i][j]); // + " : " + inputMass[i].charCodeAt(j));
                 process.exit(2);
             }
         }
