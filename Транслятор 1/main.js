@@ -9,38 +9,69 @@ function print(value) {
     Входной код находится в файле Input.txt, в этой директории
 */
 
+/// ---------- MAIN ---------- ///
+
+Main();
+
+function Main() {
+    try {
+        ReadInputFile();        // Загрузка входного файла & Лексер 
+
+        
+
+        //throw(1);
+    } 
+    catch (error) // Обработчик всех ошибок:
+    {
+        //print("error = " + error);
+        print("\n"); 
+        if(error == 1) {
+            print("Ошибка, при открытии входного файла с кодом. Проверьте его доступность"); 
+        } else {
+            print("Трансляция программы завершилась с ошибкой"); // Общая, стандартная ошибка
+        }
+
+        process.exit(1); // Завершаем программу, если ошибка
+    }
+}
+
 /// ---------- LEXER ---------- ///
 
 // Массив, который будет хранить все строки входного файла
 let inputMass; 
 
 // Читаем входной файл
-fs.readFile('Транслятор 1/Input.txt', 'utf8', function(err, data) {
-    // Помним, что чтение файла - операция асинхронная
-    if (err) {
-        console.error("Не удалось открыть файл: ", err);
-        process.exit(1); // Завершаем программу, если ошибка
-    } else {
-        print("Входной файл:\n");
-        print(data);
-        print("----------------");
+function ReadInputFile(wayToInputFile="") {    
 
-        // Подготовка к разбору лексем:
-        inputMass = data.split('\n');             
+    if(wayToInputFile == "") wayToInputFile = 'Транслятор 1/Input.txt'; // Путь по умолчанию
 
-        inputMass = LexerKommentCorrector(inputMass);   // Удаляет однострочные комметнатарии
-        inputMass = LexerClearing(inputMass);           // Очищает входной файл от пробелов, табов, и других спецсимволов
-        inputMass = OverspasingLexems(inputMass);       // Расставляет пробелы между нужными лексемами
+    fs.readFile(wayToInputFile, 'utf8', function(err, data) {
+        if (err) {
+            console.error("Не удалось открыть файл: ", err);   
+            throw(1);
+        } else {
+            print("Входной файл:\n");
+            print(data);
+            print("----------------");
 
-        LexerErrorSymbolCorrector(inputMass);           // Если встретил некорректный символ - выходит из программы, с ошибкой
+            // Подготовка к разбору лексем:
+            inputMass = data.split('\n');             
 
-        // Разбор лексем:
-        MainLexer(inputMass);
+            inputMass = LexerKommentCorrector(inputMass);   // Удаляет однострочные комметнатарии
+            inputMass = LexerClearing(inputMass);           // Очищает входной файл от пробелов, табов, и других спецсимволов
+            inputMass = OverspasingLexems(inputMass);       // Расставляет пробелы между нужными лексемами
 
-        // Вывод лексем в консоль:
-        PrintAllLexerLexems();
-    }
-});
+            LexerErrorSymbolCorrector(inputMass);           // Если встретил некорректный символ - выходит из программы, с ошибкой
+
+            // Разбор лексем:
+            MainLexer(inputMass);
+
+            // Вывод лексем в консоль:
+            PrintAllLexerLexems();
+        }
+    });
+}
+
 
 // Очищает входной файл от пробелов, табов, и других спецсимволов
 function LexerClearing(inputMass) {  
