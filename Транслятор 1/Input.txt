@@ -18,7 +18,7 @@ for (var i = 0; i < 5; i++) {
     console.log("Iteration " + i);
 }
 
-var fruits = ["apple", "orange", "banana"];
+//var fruits = ["apple", "orange", "banana"];
 
 for (var fruit of fruits) {
     console.log(fruit);

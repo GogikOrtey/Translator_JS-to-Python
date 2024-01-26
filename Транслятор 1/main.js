@@ -239,8 +239,9 @@ function PrintAllLexerLexems() {
 
 /// ---------- PARSER ---------- ///
 
-
 // Массив используемых переменных - ?
+
+let allFuncInit = []; // Будет хранить все инициализированные названия функций
 
 // Для печати с нужным количеством табов
 let lvl = 0;
@@ -299,8 +300,32 @@ function MainParser() {
             }
         }        
 
-        if(lexMassAdd[i] == "") {
-            
+        if(lexMassAdd[i] == "FUNCTION_DECLARATION") {
+            i++;
+    
+            if(lexMassAdd[i] == "ID") {
+                printLvl("INIT_FUNC:");
+                lvl++;
+                printLvl("NAME : " + lexMassMain[i]);
+                allFuncInit.push(lexMassMain[i]);
+                i++;
+    
+                if(lexMassAdd[i] == "OPEN_PARENTHESIS") {
+                    printLvl("PARAMS:");
+                    lvl++;
+                    i++;
+    
+                    while(lexMassAdd[i] != "CLOSE_PARENTHESIS") {
+                        if(lexMassAdd[i] == "ID") {
+                            printLvl("PARAM : " + lexMassMain[i]);
+                        }
+                        i++;
+                    }
+    
+                    lvl--;
+                }
+                lvl--;
+            }
         }
 
         if(lexMassAdd[i] == "") {
