@@ -11,7 +11,8 @@ function print(value) {
 
 /// ---------- LEXER ---------- ///
 
-let inputMass; // Массив, который будет хранить все строки входного файла
+// Массив, который будет хранить все строки входного файла
+let inputMass; 
 
 // Читаем входной файл
 fs.readFile('Транслятор 1/Input.txt', 'utf8', function(err, data) {
@@ -20,16 +21,17 @@ fs.readFile('Транслятор 1/Input.txt', 'utf8', function(err, data) {
         console.error("Не удалось открыть файл: ", err);
         process.exit(1); // Завершаем программу, если ошибка
     } else {
-        //console.log(data);
+        // Подготовка к разбору лексем:
         inputMass = data.split('\n');             
 
-        inputMass = LexerClearing(inputMass);
-        //print(inputMass);
-        inputMass = OverspasingLexems(inputMass);
+        inputMass = LexerKommentCorrector(inputMass);   // Удаляет однострочные комметнатарии
+        inputMass = LexerClearing(inputMass);           // Очищает входной файл от пробелов, табов, и других спецсимволов
+        inputMass = OverspasingLexems(inputMass);       // Расставляет пробелы между нужными лексемами
 
+        LexerErrorSymbolCorrector(inputMass);           // Если встретил некорректный символ - выходит из программы, с ошибкой
+
+        // Разбор лексем:
         MainLexer(inputMass);
-
-        //print(inputMass);
     }
 });
 
@@ -59,6 +61,33 @@ function LexerClearing(inputMass) {
 
     return inputMass;
 }
+
+// Удаляет однострочные комметнатарии
+function LexerKommentCorrector(inputMass) {
+    for (let i = 0; i < inputMass.length; i++) {
+        for (let j = 0; j < inputMass[i].length - 1; j++) {
+            if(inputMass[i][j] == '/' && inputMass[i][j+1] == '/') { // Если нашли начало комментария
+                inputMass[i] = inputMass[i].substring(0, j);
+                break; // Выходим из цикла, так как мы уже нашли комментарий
+            }
+        }
+    }
+
+    return(inputMass);
+}
+
+function LexerErrorSymbolCorrector(inputMass) {
+    for (let i = 0; i < inputMass.length; i++) {
+        for (let j = 0; j < inputMass[i].length; j++) {
+            let ascii = inputMass[i].charCodeAt(j);
+            if (!((ascii >= 32 && ascii <= 126) || (ascii >= 1040 && ascii <= 1103))) {
+                print("Встречен недопустимый символ! Разбор программы был остановлен: " + inputMass[i][j]);
+                process.exit(2);
+            }
+        }
+    }
+}
+
 
 // Ключевые слова (лексемы), между которыми мы ставим пробелы
 let mass_SpaseLexems = {
@@ -158,3 +187,5 @@ function MainLexer(inputMass) {
 
     При любой ошибке - кидать строку или лексему, в которой она произошла
 */
+
+/// ---------- PARSER ---------- ///
