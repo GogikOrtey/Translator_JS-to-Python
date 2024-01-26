@@ -324,12 +324,151 @@ function MainParser() {
     
                     lvl--;
                 }
-                lvl--;
+                printLvl("BODY: ");
+                continue;
             }
         }
 
+        if(lexMassAdd[i] == "RETURN_STATEMENT") {
+            printLvl("RETURN:");
+            lvl++;
+            i++;
+        
+            while(lexMassAdd[i] != "SEMICOLON") {
+                if(lexMassAdd[i] == "ID" || lexMassAdd[i] == "NUM_INT") {
+                    printLvl("VALUE : " + lexMassMain[i]);
+                } else if(lexMassAdd[i] == "ADDITION_OPERATOR") {
+                    printLvl("OPERATOR : " + lexMassMain[i]);
+                }
+                i++;
+            }
+        
+            lvl--;
+            continue;
+        }
+
+        if(lexMassAdd[i] == "IF_STATEMENT") {
+            printLvl("IF:");
+            lvl++;
+            i++;
+        
+            if(lexMassAdd[i] == "OPEN_PARENTHESIS") {
+                i++;
+        
+                while(lexMassAdd[i] != "CLOSE_PARENTHESIS") {
+                    if(lexMassAdd[i] == "ID" || lexMassAdd[i] == "NUM_INT") {
+                        printLvl("VALUE : " + lexMassMain[i]);
+                    } else if(lexMassAdd[i] == "GREATER_THAN") {
+                        printLvl("OPERATOR : " + lexMassMain[i]);
+                    }
+                    i++;
+                }
+        
+                //lvl--;
+                printLvl("BODY: ");
+                continue;
+            }
+        }
+        
+        if(lexMassAdd[i] == "CONSOLE_LOG") {
+            printLvl("CONSOLE_LOG:");
+            lvl++;
+            i++;
+        
+            if(lexMassAdd[i] == "OPEN_PARENTHESIS") {
+                i++;
+        
+                while(lexMassAdd[i] != "CLOSE_PARENTHESIS") {
+                    if(lexMassAdd[i] == "STRING" || lexMassAdd[i] == "ID") {
+                        printLvl("VALUE : " + lexMassMain[i]);
+                    } else if(lexMassAdd[i] == "ADDITION_OPERATOR") {
+                        printLvl("OPERATOR : " + lexMassMain[i]);
+                    }
+                    i++;
+                }
+        
+                lvl--;
+                continue;
+            }
+        }
+
+        if(lexMassAdd[i] == "ELSE_STATEMENT") {
+            printLvl("ELSE:");
+            lvl++;
+            printLvl("BODY: ");
+            continue;
+        }
+
+        if(lexMassAdd[i] == "FOR_LOOP") {
+            printLvl("FOR:");
+            lvl++;
+            i++;
+        
+            if(lexMassAdd[i] == "OPEN_PARENTHESIS") {
+                i++;
+        
+                if(lexMassAdd[i] == "VARIABLE_DECLARATION") {
+                    i++;
+        
+                    if(lexMassAdd[i] == "ID") {
+                        printLvl("COUNTER_VAR : " + lexMassMain[i]);
+                        i++;
+        
+                        if(lexMassAdd[i] == "EQUAL") {
+                            i++;
+        
+                            if(lexMassAdd[i] == "NUM_INT") {
+                                printLvl("INIT_VALUE : " + lexMassMain[i]);
+                                i++;
+        
+                                if(lexMassAdd[i] == "SEMICOLON") {
+                                    i++;
+        
+                                    while(lexMassAdd[i] != "SEMICOLON") {
+                                        i++;
+                                    }
+        
+                                    if(lexMassAdd[i] == "SEMICOLON") {
+                                        i--;
+        
+                                        if(lexMassAdd[i] == "NUM_INT") {
+                                            printLvl("END_VALUE : " + lexMassMain[i]);
+                                            i++;
+        
+                                            if(lexMassAdd[i] == "SEMICOLON") {
+                                                i++;
+        
+                                                if(lexMassAdd[i] == "ID") {
+                                                    i++;
+        
+                                                    if(lexMassAdd[i] == "ADDITION_OPERATOR" && lexMassAdd[i+1] == "ADDITION_OPERATOR") {
+                                                        printLvl("INCREMENT : ++");
+                                                        i++;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+        
+                //lvl--;
+                printLvl("BODY: ");
+                continue;
+            }
+        }
+        
+        
+
         if(lexMassAdd[i] == "") {
             
+        }
+
+        if(lexMassAdd[i] == "CLOSE_BRACE") {
+            if(lvl > 0) lvl--;
         }
     }  
 }
