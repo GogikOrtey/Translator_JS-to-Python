@@ -11,27 +11,39 @@ function print(value) {
 
 /// ---------- MAIN ---------- ///
 
-Main();
-
 function Main() {
     try {
-        ReadInputFile();        // Загрузка входного файла & Лексер 
+        // В принципе, программа маленькая. Она вся умещается вот в эти 3 строчки кода:
 
-        
+        ReadInputFile();        // Загрузка входного файла & Лексер 
+        MainParser();           // Парсер & Семантический анализатор
 
         //throw(1);
     } 
-    catch (error) // Обработчик всех ошибок:
+    catch (error) // Обработчик ВСЕХ ошибок:
     {
-        //print("error = " + error);
+        print("error = " + error);
         print("\n"); 
+
+        // Ошибки, которые выбрасывает Лексер
         if(error == 1) {
             print("Ошибка, при открытии входного файла с кодом. Проверьте его доступность"); 
-        } else {
+        } 
+        if(error == 2) {
+            print("Встречен недопустимый символ"); 
+        } 
+
+        // Ошибки, которые выбрасывает Парсер
+        if(error == 3) {
+            //print("Ошибка, при открытии входного файла с кодом. Проверьте его доступность"); 
+        } 
+
+        // Все остальные ошибки (включая незадекларированные):
+        else {
             print("Трансляция программы завершилась с ошибкой"); // Общая, стандартная ошибка
         }
 
-        process.exit(1); // Завершаем программу, если ошибка
+        process.exit(1); // Завершаем программу
     }
 }
 
@@ -40,37 +52,42 @@ function Main() {
 // Массив, который будет хранить все строки входного файла
 let inputMass; 
 
+let lexMassMain = [];   // Хранит все лексемы           Например: for
+let lexMassAdd = [];    // Хранит все описания лексем   Например: FOR_LOOP
+
 // Читаем входной файл
 function ReadInputFile(wayToInputFile="") {    
 
+    print("Читаем файл");
+
     if(wayToInputFile == "") wayToInputFile = 'Транслятор 1/Input.txt'; // Путь по умолчанию
 
-    fs.readFile(wayToInputFile, 'utf8', function(err, data) {
-        if (err) {
-            console.error("Не удалось открыть файл: ", err);   
-            throw(1);
-        } else {
-            print("Входной файл:\n");
-            print(data);
-            print("----------------");
+    try {
+        let data = fs.readFileSync(wayToInputFile, 'utf8');
+        print("Входной файл:\n");
+        print(data);
+        print("----------------");
 
-            // Подготовка к разбору лексем:
-            inputMass = data.split('\n');             
+        // Подготовка к разбору лексем:
+        inputMass = data.split('\n');             
 
-            inputMass = LexerKommentCorrector(inputMass);   // Удаляет однострочные комметнатарии
-            inputMass = LexerClearing(inputMass);           // Очищает входной файл от пробелов, табов, и других спецсимволов
-            inputMass = OverspasingLexems(inputMass);       // Расставляет пробелы между нужными лексемами
+        inputMass = LexerKommentCorrector(inputMass);   // Удаляет однострочные комметнатарии
+        inputMass = LexerClearing(inputMass);           // Очищает входной файл от пробелов, табов, и других спецсимволов
+        inputMass = OverspasingLexems(inputMass);       // Расставляет пробелы между нужными лексемами
 
-            LexerErrorSymbolCorrector(inputMass);           // Если встретил некорректный символ - выходит из программы, с ошибкой
+        LexerErrorSymbolCorrector(inputMass);           // Если встретил некорректный символ - выходит из программы, с ошибкой
 
-            // Разбор лексем:
-            MainLexer(inputMass);
+        // Разбор лексем:
+        MainLexer(inputMass);
 
-            // Вывод лексем в консоль:
-            PrintAllLexerLexems();
-        }
-    });
+        // Вывод лексем в консоль:
+        PrintAllLexerLexems();
+    } catch (err) {
+        console.error("Не удалось открыть файл: ", err);   
+        throw(1);
+    }
 }
+
 
 
 // Очищает входной файл от пробелов, табов, и других спецсимволов
@@ -114,6 +131,7 @@ function LexerKommentCorrector(inputMass) {
     return(inputMass);
 }
 
+// Проверяет, нет ли в программе недопустимых символов
 function LexerErrorSymbolCorrector(inputMass) {
     for (let i = 0; i < inputMass.length; i++) {
         for (let j = 0; j < inputMass[i].length; j++) {
@@ -121,7 +139,8 @@ function LexerErrorSymbolCorrector(inputMass) {
             if (!((ascii >= 32 && ascii <= 126) || (ascii >= 1040 && ascii <= 1105))) {
                 print("Встречен недопустимый символ! Разбор программы был остановлен: " 
                     + inputMass[i][j]); // + " : " + inputMass[i].charCodeAt(j));
-                process.exit(2);
+                //process.exit(2);
+                throw(2);
             }
         }
     }
@@ -171,11 +190,6 @@ let keywords = {
     "console.log" : "CONSOLE_LOG"      
 };
 
-
-let lexMassMain = [];   // Хранит все лексемы           Например: for
-let lexMassAdd = [];    // Хранит все описания лексем   Например: FOR_LOOP
-// Эти массивы будут публичными.
-
 let isPrintToConsole = false; // Печатаем в консоль из MainLexer?
 
 // Выводит в консоль все встреченные лексемы, по порядку
@@ -224,6 +238,67 @@ function PrintAllLexerLexems() {
 }
 
 /// ---------- PARSER ---------- ///
+
+
+// Массив используемых переменных - ?
+
+
+function MainParser() {
+    // Используем массивы lexMassMain и lexMassAdd - в них харнятся все распознанные лексемы
+    // Идём по ним, и когда встречаем лексему, с которой начинается какой-то блок, в программе,
+    // например FOR или IF - переходим в другую функцию, и обрабатываем этот блок.
+    // Но затем - снова возвращаем управление, в эту основную функцию
+
+    for (let i = 0; i < lexMassMain.length; i++) {
+
+        // Нет проверки на выход за границы массива
+        // Но JS и не будет кидать ошибку, в таком случае, так что всё работает как нужно
+
+        if(lexMassAdd[i] == "VARIABLE_DECLARATION") {
+
+            //if()
+        }        
+    }  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Main(); 
+
+// Он сидит тут, ̶п̶о̶т̶о̶м̶у̶ ̶ч̶т̶о̶ ̶н̶а̶к̶а̶з̶а̶н
+// Он здесь, потому что нужно сначала инициализировать все переменные и функции, что бы не было ошибок
 
 
 
