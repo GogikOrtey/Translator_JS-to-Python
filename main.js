@@ -22,9 +22,10 @@ function Main() {
 
         ReadInputFile();        // Загрузка входного файла & Лексер 
         MainParser();           // Парсер & Семантический анализатор
-        MainCodeGen();              // Кодогенератор & Выходной файл
+        MainCodeGen();          // Кодогенератор & Выходной файл
 
-        //throw(1);
+        print("---------------------\n");
+        print("Трансляция завершилась успешно!");
     } 
     catch (error) // Обработчик ВСЕХ ошибок:
     {
@@ -66,7 +67,7 @@ function ReadInputFile(wayToInputFile="") {
 
     print("Читаем файл");
 
-    if(wayToInputFile == "") wayToInputFile = 'Транслятор 1/Input.txt'; // Путь по умолчанию
+    if(wayToInputFile == "") wayToInputFile = 'Input.txt'; // Путь по умолчанию
 
     try {
         let data = fs.readFileSync(wayToInputFile, 'utf8');
@@ -556,6 +557,9 @@ function cprint(str) {
 function MainCodeGen() {
     CodeGen();              // Кодогенератор
     CreateOutputFile();     // Создаёт выходной файл
+
+    print("\n---------------------\n");
+    print("Файл OutputFile создан\n");
 }
 
 
