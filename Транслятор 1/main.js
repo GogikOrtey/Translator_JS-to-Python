@@ -609,10 +609,110 @@ function CodeGen(){
                     // Удалить последнюю запятую и пробел
                     outp_tmp = outp_tmp.slice(0, -2);
                     
-                    outp_tmp += "):\n";
+                    outp_tmp += "):";
                     cprint("");
                     cprint(outp_tmp);
                     
+                    continue;
+                }
+            }
+        }
+
+        // Добавить авто-расставление табов
+        
+        if(parserTree[i].includes("RETURN:")) {
+            i++;
+            
+            if(parserTree[i].includes("VALUE :")) {
+                parts = parserTree[i].split(" : ");
+                outp_tmp += "    return " + parts[1];
+                i++;
+                
+                if(parserTree[i].includes("OPERATOR :")) {
+                    parts = parserTree[i].split(" : ");
+                    outp_tmp += " " + parts[1] + " ";
+                    i++;
+                    
+                    if(parserTree[i].includes("VALUE :")) {
+                        parts = parserTree[i].split(" : ");
+                        outp_tmp += parts[1];
+                        cprint(outp_tmp);
+                        
+                        continue;
+                    }
+                }
+            }
+        }
+
+        if(parserTree[i].includes("IF:")) {
+            i++;
+            
+            if(parserTree[i].includes("VALUE :")) {
+                parts = parserTree[i].split(" : ");
+                outp_tmp += "if " + parts[1];
+                i++;
+                
+                if(parserTree[i].includes("OPERATOR :")) {
+                    parts = parserTree[i].split(" : ");
+                    outp_tmp += " " + parts[1] + " ";
+                    i++;
+                    
+                    if(parserTree[i].includes("VALUE :")) {
+                        parts = parserTree[i].split(" : ");
+                        outp_tmp += parts[1] + ":";
+                        cprint(outp_tmp);
+                        
+                        continue;
+                    }
+                }
+            }
+        }   
+        
+        if(parserTree[i].includes("CONSOLE_LOG:")) {
+            outp_tmp += "    print(";
+            i++;
+
+            while(!parserTree[i].includes("END_BODY_CONSOLE_LOG")) {
+                if(parserTree[i].includes("VALUE :")) {
+                    parts = parserTree[i].split(" : ");
+                    outp_tmp += parts[1];
+                    i++;
+                }
+                
+                if(parserTree[i].includes("OPERATOR :")) {
+                    parts = parserTree[i].split(" : ");
+                    outp_tmp += " " + parts[1] + " ";
+                    i++;
+                }
+
+                //print("Обрабатываем строку: " + parserTree[i]);
+            }
+            
+            outp_tmp += ")";
+            cprint(outp_tmp);
+
+            continue;
+        }
+        
+        if(parserTree[i].includes("ELSE:")) {
+            outp_tmp += "else:";
+            cprint(outp_tmp);
+            continue;
+        }    
+        
+        if(parserTree[i].includes("FOR:")) {
+            i++;
+            
+            if(parserTree[i].includes("COUNTER_VAR :")) {
+                parts = parserTree[i].split(" : ");
+                outp_tmp += "for " + parts[1] + " in range(";
+                i+=2;
+                if(parserTree[i].includes("END_VALUE :")) {
+                    parts = parserTree[i].split(" : ");
+                    outp_tmp += parts[1] + "):";
+                    cprint(outp_tmp);
+                    i += 2;
+
                     continue;
                 }
             }
@@ -621,6 +721,10 @@ function CodeGen(){
 
         if(parserTree[i].includes("INIT_VAR:")) {
             
+        }
+
+        if(parserTree[i].includes("END_BODY")) {
+            cprint("");
         }
     }
 }
