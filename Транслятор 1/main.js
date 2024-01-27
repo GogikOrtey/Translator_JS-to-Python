@@ -699,24 +699,39 @@ function CodeGen(){
             cprint(outp_tmp);
             continue;
         }    
-        
+
         if(parserTree[i].includes("FOR:")) {
             i++;
             
             if(parserTree[i].includes("COUNTER_VAR :")) {
                 parts = parserTree[i].split(" : ");
-                outp_tmp += "for " + parts[1] + " in range(";
-                i+=2;
-                if(parserTree[i].includes("END_VALUE :")) {
-                    parts = parserTree[i].split(" : ");
-                    outp_tmp += parts[1] + "):";
-                    cprint(outp_tmp);
-                    i += 2;
-
-                    continue;
+                outp_tmp += "for " + parts[1];
+                i++;
+                if(parserTree[i].includes("OF")) {
+                    i++;
+                    outp_tmp += " in ";
+                    
+                    if(parserTree[i].includes("VAR_COUNTS :")) {
+                        parts = parserTree[i].split(" : ");
+                        outp_tmp += parts[1] + ":";
+                        cprint(outp_tmp);
+                        
+                        continue;
+                    }
+                } else {
+                    i++;
+                    if(parserTree[i].includes("END_VALUE :")) {
+                        parts = parserTree[i].split(" : ");
+                        outp_tmp += " in range(" + parts[1] + "):";
+                        cprint(outp_tmp);
+                        i += 2;
+    
+                        continue;
+                    }
                 }
             }
         }
+        
         
 
         if(parserTree[i].includes("INIT_VAR:")) {
