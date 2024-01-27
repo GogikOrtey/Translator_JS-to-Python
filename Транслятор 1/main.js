@@ -22,6 +22,7 @@ function Main() {
 
         ReadInputFile();        // Загрузка входного файла & Лексер 
         MainParser();           // Парсер & Семантический анализатор
+        CodeGen();              // Кодогенератор & Выходной файл
 
         //throw(1);
     } 
@@ -37,8 +38,6 @@ function Main() {
         if(error == 2) {
             print("Встречен недопустимый символ"); 
         } 
-
-        // Ошибки, которые выбрасывает Парсер
 
         // Все остальные ошибки (включая незадекларированные):
         else {
@@ -252,7 +251,8 @@ function PrintAllLexerLexems() {
 /// ---------- PARSER ---------- ///
 
 
-let allFuncInit = []; // Будет хранить все инициализированные названия функций
+let allFuncInit = [];   // Будет хранить все инициализированные названия функций
+let parserTree = [];    // Хранит всё дерево парсера
 
 // Для печати с нужным количеством табов
 let lvl = 0;
@@ -265,6 +265,7 @@ function printLvl(str) {
         str1 += "	";
     }
 
+    parserTree.push(str);
     print(str1 + str);
 }
 
@@ -530,6 +531,65 @@ function MainParser() {
 
 
 
+
+
+
+/// ---------- CODE GEN ---------- ///
+
+
+let outpFileMass = [];
+
+// Печатает, и сохраняет в выходной файл сгенерированный код
+function cprint(str) {
+    print(str);
+    outpFileMass.push(str);
+}
+
+function CodeGen(){
+    print("\n---------------------\n");
+    print("Кодогенератор:\n");
+
+    /*
+        Основные используемые методы:
+        1. Проверка, есть ли подстрока в строке:
+        parserTree[i].includes("NAME :")
+
+        2. Разделение строки на 2 части, используя : как разделитель
+
+        let parts = parserTree[i].split(":");   // str = "NAME : x"
+        let namePart = parts[0].trim();         // "NAME"
+        let xPart = parts[1].trim();            // "x"
+    */
+
+    for (let i = 0; i < parserTree.length; i++) {
+        //print(parserTree[i]);
+        let outp_tmp = "";
+        let parts = "";       
+
+        if(parserTree[i].includes("INIT_VAR:")) {
+            i++;
+            
+            if(parserTree[i].includes("NAME :")) {
+                parts = parserTree[i].split(":");
+                outp_tmp += parts[1] + " = ";
+                i++;
+                
+                if(parserTree[i].includes("VALUE :")) {
+                    parts = parserTree[i].split(":");
+                    outp_tmp += parts[1];
+                    cprint(outp_tmp);
+                    
+                    continue;
+                }
+            }
+        }
+
+
+        if(parserTree[i].includes("INIT_VAR:")) {
+            
+        }
+    }
+}
 
 
 
