@@ -317,7 +317,9 @@ function MainParser() {
                         }
         
                         lvl--;
+                        printLvl("END_BODY_INIT_VAR");
                         lvl--;
+                        continue;
                     }
                 }
             }
@@ -410,6 +412,7 @@ function MainParser() {
                     i++;
                 }
         
+                printLvl("END_BODY_CONSOLE_LOG");
                 lvl--;
                 continue;
             }
@@ -514,6 +517,7 @@ function MainParser() {
         
                     lvl--;
                     lvl--;
+                    printLvl("END_BODY_CALL_FUNCTION");
                     continue;
                 }
             }
@@ -524,7 +528,8 @@ function MainParser() {
         }
 
         if(lexMassAdd[i] == "CLOSE_BRACE") {
-            if(lvl > 0) lvl--;
+            printLvl("END_BODY");
+            if(lvl > 0) lvl--;            
         }
     }  
 }
@@ -556,7 +561,7 @@ function CodeGen(){
 
         2. Разделение строки на 2 части, используя : как разделитель
 
-        let parts = parserTree[i].split(":");   // str = "NAME : x"
+        let parts = parserTree[i].split(" : ");   // str = "NAME : x"
         let namePart = parts[0].trim();         // "NAME"
         let xPart = parts[1].trim();            // "x"
     */
@@ -570,7 +575,7 @@ function CodeGen(){
             i++;
             
             if(parserTree[i].includes("NAME :")) {
-                parts = parserTree[i].split(":");
+                parts = parserTree[i].split(" : ");
                 outp_tmp += parts[1] + " = ";
                 i++;
                 
@@ -582,8 +587,37 @@ function CodeGen(){
                     continue;
                 }
             }
+        }    
+        
+        if(parserTree[i].includes("INIT_FUNC:")) {
+            i++;
+            
+            if(parserTree[i].includes("NAME :")) {
+                parts = parserTree[i].split(" : ");
+                outp_tmp += "def " + parts[1].toLowerCase() + "(";
+                i++;
+                
+                if(parserTree[i].includes("PARAMS:")) {
+                    i++;
+                    
+                    while(parserTree[i].includes("PARAM :")) {
+                        parts = parserTree[i].split(" : ");
+                        outp_tmp += parts[1] + ", ";
+                        i++;
+                    }
+                    
+                    // Удалить последнюю запятую и пробел
+                    outp_tmp = outp_tmp.slice(0, -2);
+                    
+                    outp_tmp += "):\n";
+                    cprint("");
+                    cprint(outp_tmp);
+                    
+                    continue;
+                }
+            }
         }
-
+        
 
         if(parserTree[i].includes("INIT_VAR:")) {
             
