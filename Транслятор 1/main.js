@@ -22,7 +22,7 @@ function Main() {
 
         ReadInputFile();        // Загрузка входного файла & Лексер 
         MainParser();           // Парсер & Семантический анализатор
-        CodeGen();              // Кодогенератор & Выходной файл
+        MainCodeGen();              // Кодогенератор & Выходной файл
 
         //throw(1);
     } 
@@ -541,8 +541,9 @@ function MainParser() {
 
 /// ---------- CODE GEN ---------- ///
 
-
+// Здесь хранятся все строки выходного файла
 let outpFileMass = [];
+
 
 // Печатает, и сохраняет в выходной файл сгенерированный код
 function cprint(str) {
@@ -550,20 +551,28 @@ function cprint(str) {
     outpFileMass.push(str);
 }
 
-function CodeGen(){
+
+// Основная функция кодогенератора
+function MainCodeGen() {
+    CodeGen();              // Кодогенератор
+    CreateOutputFile();     // Создаёт выходной файл
+}
+
+
+function CodeGen() {
     print("\n---------------------\n");
     print("Кодогенератор:\n");
 
     /*
-        Основные используемые методы:
+        Основные используемые здесь методы:
+
         1. Проверка, есть ли подстрока в строке:
-        parserTree[i].includes("NAME :")
+            parserTree[i].includes("NAME :")
 
-        2. Разделение строки на 2 части, используя : как разделитель
-
-        let parts = parserTree[i].split(" : ");   // str = "NAME : x"
-        let namePart = parts[0].trim();         // "NAME"
-        let xPart = parts[1].trim();            // "x"
+        2. Разделение строки на 2 части, используя " : " как разделитель
+            let parts = parserTree[i].split(" : "); // str = "NAME : x"
+            let namePart = parts[0].trim();         // "NAME"
+            let xPart = parts[1].trim();            // "x"
     */
 
     for (let i = 0; i < parserTree.length; i++) {
@@ -580,15 +589,35 @@ function CodeGen(){
                 i++;
                 
                 if(parserTree[i].includes("VALUE :")) {
-                    parts = parserTree[i].split(":");
+                    parts = parserTree[i].split(" : ");
                     outp_tmp += parts[1];
                     cprint(outp_tmp);
+                    
+                    continue;
+                } else if(parserTree[i].includes("MASS_VALUES:")) {
+                    i++;
+                    outp_tmp += "[";
+            
+                    while(!parserTree[i].includes("END_BODY_INIT_VAR")) {
+                        if(parserTree[i].includes("VALUE :")) {
+                            parts = parserTree[i].split(" : ");
+                            outp_tmp += parts[1] + ", ";
+                            i++;
+                        }
+                    }
+                    
+                    // Удалить последнюю запятую и пробел
+                    outp_tmp = outp_tmp.slice(0, -2);
+                    
+                    outp_tmp += "]";
+                    cprint(outp_tmp);
+                    cprint("");
                     
                     continue;
                 }
             }
         }    
-        
+
         if(parserTree[i].includes("INIT_FUNC:")) {
             i++;
             
@@ -610,15 +639,13 @@ function CodeGen(){
                     outp_tmp = outp_tmp.slice(0, -2);
                     
                     outp_tmp += "):";
-                    cprint("");
+                    //cprint("");
                     cprint(outp_tmp);
                     
                     continue;
                 }
             }
         }
-
-        // Добавить авто-расставление табов
         
         if(parserTree[i].includes("RETURN:")) {
             i++;
@@ -732,6 +759,35 @@ function CodeGen(){
             }
         }
         
+        if(parserTree[i].includes("CALL_FUNC:")) {
+            i++;
+            
+            if(parserTree[i].includes("NAME :")) {
+                parts = parserTree[i].split(" : ");
+                outp_tmp += parts[1] + "(";
+                i++;
+                
+                if(parserTree[i].includes("ARGS:")) {
+                    i++;
+                    
+                    while(!parserTree[i].includes("END_BODY_CALL_FUNCTION")) {
+                        if(parserTree[i].includes("ARG :")) {
+                            parts = parserTree[i].split(" : ");
+                            outp_tmp += parts[1] + ", ";
+                            i++;
+                        }
+                    }
+                    
+                    // Удалить последнюю запятую и пробел
+                    outp_tmp = outp_tmp.slice(0, -2);
+                    
+                    outp_tmp += ")";
+                    cprint(outp_tmp);
+                    
+                    continue;
+                }
+            }
+        }
         
 
         if(parserTree[i].includes("INIT_VAR:")) {
@@ -745,7 +801,15 @@ function CodeGen(){
 }
 
 
+function CreateOutputFile(str="", outpFileMass) {
+    if(str == "") str = "OutputFile.txt";
 
+    // Преобразование массива строк в одну строку с переносами строки
+    let data = outpFileMass.join('\n'); 
+    
+    // Запись данных в файл
+    fs.writeFileSync(str, data); 
+}
 
 
 
