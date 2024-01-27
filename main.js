@@ -801,7 +801,7 @@ function CodeGen() {
 }
 
 
-function CreateOutputFile(str="", outpFileMass) {
+function CreateOutputFile(str="") {
     if(str == "") str = "OutputFile.txt";
 
     // Преобразование массива строк в одну строку с переносами строки
